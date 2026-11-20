@@ -1,0 +1,74 @@
+@startuml clases_infraestructura
+title Clases - Infraestructura: filtros, listeners, util y excepciones
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+interface "jakarta.servlet.Filter" as Filter
+interface "jakarta.servlet.http.HttpSessionListener" as HSL
+interface "jakarta.servlet.ServletContextListener" as SCL
+
+class SecurityHeadersFilter <<filter>> {
+  - {static} CSP : String
+  + doFilter(req, res, chain)
+}
+class AuthFilter <<filter>> {
+  - {static} ROLES_POR_RUTA : Map<String,Set<String>>
+  + doFilter(req, res, chain)
+  + {static} rolPermite(ruta, rol) : boolean
+}
+class CsrfFilter <<filter>> {
+  + {static} ATRIBUTO_SESION : String
+  + {static} PARAMETRO : String
+  + {static} CABECERA : String
+  + doFilter(req, res, chain)
+}
+class SesionListener <<listener>> {
+  + {static} ATRIBUTO : String
+  + sessionCreated(se)
+  + sessionDestroyed(se)
+}
+class ContextoListener <<listener>> {
+  + contextInitialized(sce)
+}
+
+class ConexionBD <<util>> {
+  + {static} obtener() : Connection
+}
+class Csv <<util>> {
+  + {static} escribirLinea(w, celdas, numericas)
+  + {static} celda(valor, numerica) : String
+}
+class ListaVista <<util>> {
+  + {static} preparar(req, pag, base, filtros, orden)
+}
+class FiltrosReporte <<util>>
+class TablaReporte <<model>>
+
+class DaoException <<exception>>
+class RegistroDuplicadoException <<exception>>
+class StockInsuficienteException <<exception>>
+class CitaCruzadaException <<exception>>
+class UltimoAdminException <<exception>>
+class Exception
+class RuntimeException
+
+Filter <|.. SecurityHeadersFilter
+Filter <|.. AuthFilter
+Filter <|.. CsrfFilter
+HSL <|.. SesionListener
+SCL <|.. ContextoListener
+RuntimeException <|-- DaoException
+Exception <|-- RegistroDuplicadoException
+Exception <|-- StockInsuficienteException
+Exception <|-- CitaCruzadaException
+Exception <|-- UltimoAdminException
+class ReporteAlmacenServlet <<controller>>
+class ReporteCitasServlet <<controller>>
+ReporteAlmacenServlet ..> Csv
+ReporteAlmacenServlet ..> FiltrosReporte
+ReporteAlmacenServlet ..> TablaReporte
+ReporteCitasServlet ..> Csv
+ReporteCitasServlet ..> FiltrosReporte
+ReporteCitasServlet ..> TablaReporte
+@enduml

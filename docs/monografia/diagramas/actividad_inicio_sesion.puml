@@ -1,0 +1,59 @@
+@startuml actividad_inicio_sesion
+title Inicio de sesión con control de intentos
+skinparam shadowing false
+skinparam defaultFontSize 12
+
+start
+:Escribir usuario y contraseña en /login;
+if (¿Validación jQuery correcta?) then (no)
+  :Mostrar errores en el formulario;
+  stop
+else (sí)
+endif
+:POST /login (sin token CSRF: es la única excepción);
+
+if (¿Formato válido?\n(usuario 3-30 caracteres permitidos,\ncontraseña de 1 a 100)) then (no)
+  :Auditar LOGIN_FALLIDO (formato inválido);
+  #pink:401 "Usuario o contraseña incorrectos";
+  stop
+else (sí)
+endif
+
+:Buscar el usuario por nombre;
+:Verificar la contraseña contra el hash\n(si no existe, contra un hash de relleno\npara tardar lo mismo);
+
+if (¿Usuario existe y la contraseña coincide?) then (no)
+  if (¿El usuario existe y su cuenta está activa?) then (sí)
+    :Sumar un intento fallido;
+    if (¿Llegó a 5 intentos?) then (sí)
+      :Bloquear la cuenta (estado = 0);
+      :Auditar CUENTA_BLOQUEADA;
+    endif
+  endif
+  :Auditar LOGIN_FALLIDO;
+  #pink:401 "Usuario o contraseña incorrectos"\n(mismo mensaje en todos los casos);
+  stop
+else (sí)
+endif
+
+if (¿La cuenta está bloqueada?) then (sí)
+  :Auditar LOGIN_FALLIDO\n("cuenta bloqueada");
+  #pink:401 aviso de cuenta bloqueada\n(solo con la contraseña correcta);
+  stop
+else (no)
+endif
+
+:Reiniciar intentos y guardar el último acceso;
+if (¿El hash era el formato antiguo (SHA-256)?) then (sí)
+  :Guardar de nuevo con PBKDF2 y sal;
+endif
+:Invalidar la sesión anterior y crear una NUEVA\n(con el token CSRF; el hash no se guarda);
+:Auditar LOGIN_OK;
+:Redirigir a /menu (Post-Redirect-Get);
+if (¿Contraseña temporal?) then (sí)
+  :AuthFilter redirige a /perfil/password\n(solo puede cambiarla o cerrar sesión);
+else (no)
+  :Mostrar el panel del rol;
+endif
+stop
+@enduml

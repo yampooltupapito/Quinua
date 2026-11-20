@@ -1,0 +1,43 @@
+@startuml casos_de_uso_atencion
+title SIGMUD - Casos de uso del Funcionario de atención (ATENCION)
+left to right direction
+skinparam shadowing false
+
+actor "Funcionario de atención\n(ATENCION)" as ATE
+
+rectangle "SIGMUD" {
+  usecase "Iniciar / cerrar sesión" as T1
+  usecase "Ver mi panel de atención" as T2
+  usecase "Registrar contribuyente" as T3
+  usecase "Editar contribuyente" as T4
+  usecase "Dar de baja / reactivar contribuyente" as T5
+  usecase "Buscar contribuyente" as T6
+  usecase "Consultar ficha del contribuyente" as T7
+  usecase "Programar cita" as T8
+  usecase "Reprogramar cita" as T9
+  usecase "Atender cita" as T10
+  usecase "Cancelar cita" as T11
+  usecase "Reporte de citas (CSV)" as T12
+  usecase "Cambiar mi contraseña" as T13
+  usecase "Validar que no haya cruce de horario" as T14
+}
+
+ATE --> T1
+ATE --> T2
+ATE --> T3
+ATE --> T4
+ATE --> T5
+ATE --> T6
+ATE --> T7
+ATE --> T8
+ATE --> T9
+ATE --> T10
+ATE --> T11
+ATE --> T12
+ATE --> T13
+
+T8 ..> T14 : <<include>>
+T9 ..> T14 : <<include>>
+T7 ..> T8 : <<extend>>
+T2 ..> T10 : <<extend>>
+@enduml

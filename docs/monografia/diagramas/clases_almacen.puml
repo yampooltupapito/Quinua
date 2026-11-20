@@ -1,0 +1,97 @@
+@startuml clases_almacen
+title Clases - Módulo Almacén
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+class Material <<model>> {
+  - idMaterial : int
+  - codigo : String
+  - nombre : String
+  - unidad : String
+  - stock : int
+  - stockMinimo : int
+  - estado : boolean
+}
+
+class MovimientoStock <<model>> {
+  + {static} ENTRADA : String
+  + {static} SALIDA : String
+  - idMovimiento : int
+  - idMaterial : int
+  - tipo : String
+  - cantidad : int
+  - fecha : LocalDateTime
+  - idArea : Integer
+  - idUsuario : int
+  - observacion : String
+}
+
+interface MaterialDAO <<dao>> {
+  + listarPagina(texto, soloCriticos, pagina, tamano, orden, dir) : Pagina<Material>
+  + buscarPorId(id) : Optional<Material>
+  + buscarPorCodigo(codigo) : Optional<Material>
+  + insertar(m) : void
+  + actualizar(m) : void
+  + darDeBaja(id) : void
+}
+
+interface MovimientoDAO <<dao>> {
+  + registrarMovimiento(idMaterial, tipo, cantidad, idArea, idUsuario, observacion, ip) : int
+  + listarPorMaterialPagina(idMaterial, pagina, tamano, orden, dir) : Pagina<MovimientoStock>
+}
+
+interface ReporteAlmacenDAO <<dao>> {
+  + stockCritico() : List<FilaStockCritico>
+  + movimientosPorFecha(desde, hasta, tipo, idArea, idMaterial) : List<MovimientoStock>
+  + resumenPorMaterial(desde, hasta) : List<FilaResumenMaterial>
+  + salidasPorArea(desde, hasta) : List<FilaSalidaArea>
+}
+
+class MaterialDAOImpl <<dao.impl>>
+class MovimientoDAOImpl <<dao.impl>> {
+  - bloquearYLeerStock(cn, idMaterial) : int
+  - insertarMovimiento(...)
+  - actualizarStock(...)
+  - auditar(...)
+}
+class ReporteAlmacenDAOImpl <<dao.impl>>
+
+class MaterialServlet <<controller>> {
+  # doGet / doPost
+  - guardar(req, resp)
+  - darDeBaja(req, resp)
+}
+class MovimientoServlet <<controller>> {
+  # doPost : registrar (JSON)
+  # doGet : historial
+}
+class ReporteAlmacenServlet <<controller>> {
+  # doGet : 4 reportes y CSV
+}
+
+class MaterialValidador <<util>> {
+  + {static} UNIDADES : List<String>
+  + {static} validar(m) : List<String>
+}
+class StockInsuficienteException <<exception>>
+class MaterialNoDisponibleException <<exception>>
+class FilaStockCritico <<model>>
+class FilaResumenMaterial <<model>>
+class FilaSalidaArea <<model>>
+
+MaterialDAO <|.. MaterialDAOImpl
+MovimientoDAO <|.. MovimientoDAOImpl
+ReporteAlmacenDAO <|.. ReporteAlmacenDAOImpl
+MaterialServlet --> MaterialDAO
+MaterialServlet ..> MaterialValidador
+MovimientoServlet --> MovimientoDAO
+MovimientoServlet --> MaterialDAO
+ReporteAlmacenServlet --> ReporteAlmacenDAO
+MovimientoDAOImpl ..> StockInsuficienteException : lanza
+MovimientoDAOImpl ..> MaterialNoDisponibleException : lanza
+Material "1" <-- "0..*" MovimientoStock : id_material
+ReporteAlmacenDAO ..> FilaStockCritico
+ReporteAlmacenDAO ..> FilaResumenMaterial
+ReporteAlmacenDAO ..> FilaSalidaArea
+@enduml

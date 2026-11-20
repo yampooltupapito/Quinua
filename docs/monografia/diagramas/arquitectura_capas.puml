@@ -1,0 +1,67 @@
+@startuml arquitectura_capas
+title SIGMUD - Arquitectura por capas
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam defaultFontSize 12
+
+actor "Navegador\n(HTML + CSS + JS externo)" as NAV
+
+package "Apache Tomcat 10.1 (Servlet 6.0 / Jakarta EE 10)" {
+
+  package "Filtros (orden de ejecución)" as FIL {
+    [1. SecurityHeadersFilter\n(cabeceras y CSP)] as F1
+    [2. AuthFilter\n(sesión, rol, clave temporal)] as F2
+    [3. CsrfFilter\n(token en todo POST salvo /login)] as F3
+  }
+
+  package "Listeners" as LIS {
+    [SesionListener\n(sesiones activas)] as L1
+    [ContextoListener\n(logo y favicon)] as L2
+  }
+
+  package "Capa de Control (Servlets)" as CTRL {
+    [LoginServlet / LogoutServlet / PerfilServlet] as C1
+    [ContribuyenteServlet] as C2
+    [MaterialServlet / MovimientoServlet\nReporteAlmacenServlet] as C3
+    [CitaServlet / CitaAjaxServlet\nReporteCitasServlet] as C4
+    [UsuarioServlet / UsuarioAjaxServlet] as C5
+    [DashboardServlet / DashboardDatosServlet\nDashboardDesbloquearServlet] as C6
+    [AuditoriaServlet] as C7
+  }
+
+  package "Capa de Vista (JSP + JSTL)" as VISTA {
+    [WEB-INF/views/*.jsp\nfragmentos y tag files] as V1
+  }
+
+  package "Capa de Negocio y Utilidades" as UTIL {
+    [Validadores\n(Validador, CitaValidador, ...)] as U1
+    [Seguridad, Auditoria,\nOrdenSql, Paginador, Csv] as U2
+  }
+
+  package "Capa de Acceso a Datos (DAO)" as DAO {
+    [Interfaces DAO] as D1
+    [Implementaciones JDBC\n(PreparedStatement)] as D2
+    [ConexionBD\n(db.properties)] as D3
+  }
+
+  package "Modelo" as MOD {
+    [POJOs (Usuario, Cita, ...)\nPagina<T>] as M1
+  }
+}
+
+database "MySQL 8.4\nmun_quinua" as DB
+
+NAV --> F1 : HTTP
+F1 --> F2
+F2 --> F3
+F3 --> CTRL
+CTRL --> U1
+CTRL --> U2
+CTRL --> D1
+CTRL --> VISTA : forward
+VISTA --> NAV : HTML
+D1 <|.. D2
+D2 --> D3
+D2 --> M1
+D3 --> DB : JDBC
+@enduml

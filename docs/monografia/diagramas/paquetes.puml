@@ -1,0 +1,39 @@
+@startuml paquetes
+title SIGMUD - Paquetes de pe.gob.munquinua.sigmud
+skinparam shadowing false
+skinparam defaultFontSize 12
+
+package "pe.gob.munquinua.sigmud" {
+  package "controller\n(16 Servlets)" as controller
+  package "filter\n(3 filtros)" as filter
+  package "listener\n(2 listeners)" as listener
+  package "dao\n(10 interfaces)" as dao
+  package "dao.impl\n(10 implementaciones JDBC)" as impl
+  package "model\n(17 clases)" as model
+  package "util\n(14 clases: validadores,\nSeguridad, Auditoria, Paginador...)" as util
+  package "exception\n(10 excepciones)" as exception
+}
+
+package "WEB-INF/views, tags\n(JSP + JSTL)" as views
+package "webapp/assets\n(js, css, img)" as assets
+database "MySQL" as db
+
+controller --> dao
+controller --> model
+controller --> util
+controller --> exception
+controller ..> views : forward
+filter --> model
+filter ..> controller : LoginServlet.SESION_USUARIO
+impl ..|> dao
+impl --> model
+impl --> util
+impl --> exception
+dao --> model
+dao --> exception
+util --> dao
+util --> impl
+util --> model
+views ..> assets : referencia
+impl --> db : JDBC
+@enduml

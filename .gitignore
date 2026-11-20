@@ -1,0 +1,9 @@
+﻿target/
+build/
+out/
+.idea/
+.vscode/
+*.class
+*.jar
+*.log
+.env

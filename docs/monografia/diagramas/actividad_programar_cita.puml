@@ -1,0 +1,60 @@
+@startuml actividad_programar_cita
+title Programar una cita con la regla de no cruce de horarios
+skinparam shadowing false
+skinparam defaultFontSize 12
+
+start
+:Elegir contribuyente (Ajax, mínimo 3 letras);
+:Elegir área;
+:Elegir funcionario del área (Ajax);
+:Elegir fecha y ver turnos libres/ocupados (Ajax);
+:Elegir hora, ventanilla y motivo;
+:Enviar formulario (POST /citas, token CSRF);
+
+partition "CitaValidador (servidor)" {
+  if (¿Contribuyente existe y está activo?) then (no)
+    :Error "contribuyente inexistente o de baja";
+  endif
+  if (¿Funcionario pertenece al área?) then (no)
+    :Error "no pertenece al área";
+  endif
+  if (¿Fecha entre hoy y 90 días, de lunes a viernes?) then (no)
+    :Error de fecha;
+  endif
+  if (¿Hora 08:00-16:30 cada 30 min\ny no pasada si es hoy?) then (no)
+    :Error de hora;
+  endif
+  if (¿Ventanilla 1..10 y motivo <= 200?) then (no)
+    :Error de ventanilla o motivo;
+  endif
+}
+
+if (¿Hay errores de validación?) then (sí)
+  :Volver al formulario con los errores\ny los datos escritos;
+  stop
+else (no)
+endif
+
+partition "CitaDAO.insertar" {
+  :Defensa 1: SELECT COUNT(*) de citas del funcionario\nen esa fecha y hora con estado <> CANCELADA;
+  if (¿Hay cruce?) then (sí)
+    :CitaCruzadaException;
+    :Volver al formulario con el mensaje\n"El funcionario ya tiene una cita...";
+    stop
+  else (no)
+  endif
+  :INSERT de la cita (estado PROGRAMADA);
+  if (¿La base rechaza por UNIQUE\n(id_funcionario, fecha, hora_activa)?) then (sí)
+    :Defensa 2: otra persona guardó a la vez\nla misma hora (error 1062);
+    :CitaCruzadaException;
+    :Volver al formulario con el mensaje;
+    stop
+  else (no)
+  endif
+}
+
+:Registrar auditoría CITA_CREAR;
+:Guardar mensaje flash y REDIRIGIR (Post-Redirect-Get);
+:Mostrar el listado de esa fecha con el aviso\n"Cita registrada correctamente.";
+stop
+@enduml

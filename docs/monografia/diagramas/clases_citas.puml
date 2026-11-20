@@ -1,0 +1,91 @@
+@startuml clases_citas
+title Clases - Módulo Citas
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+class Cita <<model>> {
+  + {static} PROGRAMADA : String
+  + {static} ATENDIDA : String
+  + {static} CANCELADA : String
+  - idCita : int
+  - idContribuyente : int
+  - idArea : int
+  - idFuncionario : int
+  - ventanilla : int
+  - fecha : LocalDate
+  - hora : LocalTime
+  - motivo : String
+  - estado : String
+}
+
+class Area <<model>> {
+  - idArea : int
+  - nombre : String
+  - estado : boolean
+}
+
+class ResumenCitas <<model>>
+class FilaCitasResumen <<model>>
+
+interface CitaDAO <<dao>> {
+  + insertar(cita) : void
+  + reprogramar(idCita, fecha, hora, ventanilla) : void
+  + cambiarEstado(idCita, nuevoEstado) : void
+  + buscarPorId(idCita) : Optional<Cita>
+  + listarPorFecha(fecha, idArea) : List<Cita>
+  + listarPorContribuyentePagina(...) : Pagina<Cita>
+  + resumenPorContribuyente(id) : ResumenCitas
+  + proximaCita(id) : Cita
+  + existeCruce(idFuncionario, fecha, hora, idExcluida) : boolean
+  + horasOcupadas(idFuncionario, fecha) : List<LocalTime>
+}
+
+interface AreaDAO <<dao>> {
+  + listarActivas() : List<Area>
+}
+
+interface ReporteCitasDAO <<dao>> {
+  + citasPorArea(desde, hasta) : List<FilaCitasResumen>
+  + citasPorFuncionario(desde, hasta) : List<FilaCitasResumen>
+}
+
+class CitaDAOImpl <<dao.impl>> {
+  # hayCruce(cn, idFuncionario, fecha, hora, idExcluida) : boolean
+  - traducirError(e, fecha, hora, msg)
+}
+class AreaDAOImpl <<dao.impl>>
+class ReporteCitasDAOImpl <<dao.impl>>
+
+class CitaServlet <<controller>> {
+  - guardar(req, resp)
+  - cambiarEstado(req, resp, ...)
+}
+class CitaAjaxServlet <<controller>>
+class ReporteCitasServlet <<controller>>
+
+class CitaValidador <<util>> {
+  + {static} HORA_INICIO : LocalTime
+  + {static} HORA_FIN : LocalTime
+  + validar(c) : List<String>
+}
+class CitaCruzadaException <<exception>>
+class CitaEstadoException <<exception>>
+class CitaNoEncontradaException <<exception>>
+
+CitaDAO <|.. CitaDAOImpl
+AreaDAO <|.. AreaDAOImpl
+ReporteCitasDAO <|.. ReporteCitasDAOImpl
+CitaServlet --> CitaDAO
+CitaServlet --> CitaValidador
+CitaAjaxServlet --> CitaDAO
+ReporteCitasServlet --> ReporteCitasDAO
+CitaValidador ..> AreaDAO
+CitaDAOImpl ..> CitaCruzadaException : lanza
+CitaDAOImpl ..> CitaEstadoException : lanza
+CitaDAOImpl ..> CitaNoEncontradaException : lanza
+CitaDAO ..> Cita
+CitaDAO ..> ResumenCitas
+ReporteCitasDAO ..> FilaCitasResumen
+Area "1" <-- "0..*" Cita : id_area
+@enduml

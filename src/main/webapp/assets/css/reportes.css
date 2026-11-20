@@ -1,0 +1,12 @@
+/* Hoja de estilos de impresión de los reportes: oculta la barra, los filtros y los botones. */
+.solo-imprimir { display: none; }
+
+@media print {
+    nav.navbar,
+    .no-imprimir { display: none !important; }
+    .solo-imprimir { display: block !important; }
+    body { background: #fff !important; }
+    main.container { max-width: 100% !important; padding: 0 !important; }
+    table { font-size: 11px; }
+    .table-responsive { overflow: visible !important; }
+}

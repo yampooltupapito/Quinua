@@ -1,0 +1,85 @@
+@startuml clases_contribuyentes
+title Clases - Módulo Contribuyentes
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+class Contribuyente <<model>> {
+  - idContribuyente : int
+  - tipoPersona : String
+  - dniRuc : String
+  - nombresRazonSocial : String
+  - fechaNacimiento : LocalDate
+  - telefono : String
+  - email : String
+  - direccion : String
+  - estado : boolean
+  - fechaRegistro : LocalDateTime
+}
+
+class Pagina<T> <<model>> {
+  + TAMANOS : List<Integer>
+  + getItems() : List<T>
+  + paginasTotales() : int
+  + desplazamiento() : long
+}
+
+interface ContribuyenteDAO <<dao>> {
+  + listarPagina(texto, incluirInactivos, pagina, tamano, orden, dir) : Pagina<Contribuyente>
+  + buscarPorId(id) : Optional<Contribuyente>
+  + buscarPorDniRuc(dniRuc) : Optional<Contribuyente>
+  + insertar(c) : void
+  + actualizar(c) : void
+  + darDeBaja(id) : void
+  + reactivar(id) : void
+  + existeDniRuc(dniRuc, idExcluido) : boolean
+}
+
+class ContribuyenteDAOImpl <<dao.impl>> {
+  + {static} ORDEN : Map<String,String>
+  + {static} resolverOrden(orden, dir) : Orden
+  - mapear(rs) : Contribuyente
+}
+
+class ContribuyenteServlet <<controller>> {
+  # doGet(req, resp)
+  # doPost(req, resp)
+  - guardar(req, resp)
+  - darDeBaja(req, resp)
+  - reactivar(req, resp)
+  - ficha(req, resp)
+}
+
+class ContribuyenteValidador <<util>> {
+  + {static} validar(c) : List<String>
+}
+
+class Validador <<util>> {
+  + {static} dniValido(s) : boolean
+  + {static} rucValido(s) : boolean
+  + {static} telefonoValido(s) : boolean
+  + {static} emailValido(s) : boolean
+}
+
+class OrdenSql <<util>> {
+  + {static} resolver(listaBlanca, pedida, dir, porDefecto, ...) : Orden
+}
+
+class Paginador <<util>> {
+  + {static} ejecutar(columnas, desdeDonde, filtros, orden, pagina, tamano, mapeador) : Pagina<T>
+}
+
+class RegistroDuplicadoException <<exception>>
+class DaoException <<exception>>
+
+ContribuyenteDAO <|.. ContribuyenteDAOImpl
+ContribuyenteServlet --> ContribuyenteDAO
+ContribuyenteServlet ..> ContribuyenteValidador
+ContribuyenteValidador ..> Validador
+ContribuyenteDAO ..> Contribuyente
+ContribuyenteDAO ..> Pagina
+ContribuyenteDAOImpl ..> OrdenSql
+ContribuyenteDAOImpl ..> Paginador
+ContribuyenteDAOImpl ..> RegistroDuplicadoException : lanza
+ContribuyenteDAOImpl ..> DaoException : lanza
+@enduml

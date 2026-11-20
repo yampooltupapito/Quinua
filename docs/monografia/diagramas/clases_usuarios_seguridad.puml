@@ -1,0 +1,82 @@
+@startuml clases_usuarios_seguridad
+title Clases - Acceso, usuarios y seguridad
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+class Usuario <<model>> {
+  - idUsuario : int
+  - username : String
+  - passwordHash : String
+  - nombres : String
+  - rol : String
+  - idArea : Integer
+  - estado : boolean
+  - intentosFallidos : int
+  - ultimoAcceso : LocalDateTime
+  - debeCambiarPassword : boolean
+}
+
+interface UsuarioDAO <<dao>> {
+  + buscarPorUsername(username) : Optional<Usuario>
+  + buscarPorId(idUsuario) : Optional<Usuario>
+  + listarPagina(...) : Pagina<Usuario>
+  + insertar(u, passwordHash) : void
+  + actualizar(u) : void
+  + cambiarEstado(idUsuario, activo) : void
+  + actualizarPassword(idUsuario, hash, debeCambiar) : void
+  + desbloquear(idUsuario) : boolean
+  + contarAdminsActivos() : int
+  + listarFuncionariosPorArea(idArea) : List<Usuario>
+  + registrarAccesoExitoso(idUsuario) : void
+  + registrarIntentoFallido(idUsuario) : void
+}
+
+class UsuarioDAOImpl <<dao.impl>> {
+  + {static} MAX_INTENTOS : int = 5
+}
+
+class LoginServlet <<controller>> {
+  + {static} SESION_USUARIO : String
+  - autenticar(req, username, clave) : Usuario
+  - iniciarSesion(req, u)
+}
+class LogoutServlet <<controller>>
+class PerfilServlet <<controller>>
+class UsuarioServlet <<controller>>
+class UsuarioAjaxServlet <<controller>>
+
+class Seguridad <<util>> {
+  + {static} ITERACIONES : int = 120000
+  + {static} hashear(contrasena) : String
+  + {static} verificar(contrasena, almacenado) : boolean
+  + {static} esLegado(almacenado) : boolean
+  + {static} generarPasswordTemporal() : String
+  + {static} tokenAleatorio() : String
+}
+class UsuarioValidador <<util>>
+class Validador <<util>> {
+  + {static} politicaPassword(password, username) : List<String>
+}
+
+class CredencialesInvalidasException <<exception>>
+class CuentaBloqueadaException <<exception>>
+class UltimoAdminException <<exception>>
+class RegistroDuplicadoException <<exception>>
+
+UsuarioDAO <|.. UsuarioDAOImpl
+LoginServlet --> UsuarioDAO
+LoginServlet ..> Seguridad
+LoginServlet ..> CredencialesInvalidasException : lanza
+LoginServlet ..> CuentaBloqueadaException : lanza
+PerfilServlet --> UsuarioDAO
+PerfilServlet ..> Seguridad
+UsuarioServlet --> UsuarioDAO
+UsuarioServlet ..> UsuarioValidador
+UsuarioServlet ..> Seguridad
+UsuarioAjaxServlet --> UsuarioDAO
+UsuarioDAOImpl ..> UltimoAdminException : lanza
+UsuarioDAOImpl ..> RegistroDuplicadoException : lanza
+UsuarioDAO ..> Usuario
+UsuarioValidador ..> Validador
+@enduml

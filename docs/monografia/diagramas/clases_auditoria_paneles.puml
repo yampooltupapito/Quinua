@@ -1,0 +1,83 @@
+@startuml clases_auditoria_paneles
+title Clases - Auditoría y paneles (dashboards)
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+class RegistroAuditoria <<model>> {
+  - idAuditoria : long
+  - fechaHora : LocalDateTime
+  - idUsuario : Integer
+  - username : String
+  - accion : String
+  - entidad : String
+  - idEntidad : Integer
+  - descripcion : String
+  - detalle : String
+  - ip : String
+}
+
+class FiltrosAuditoria <<model>> {
+  - desde : LocalDate
+  - hasta : LocalDate
+  - username : String
+  - accion : String
+  - entidad : String
+  - texto : String
+}
+
+interface AuditoriaDAO <<dao>> {
+  + registrar(r) : void
+  + registrar(cn, r) : void
+  + buscar(filtros, pagina, tamano) : List<RegistroAuditoria>
+  + contar(filtros) : long
+  + recientes(n) : List<RegistroAuditoria>
+  + ultimosPorEntidad(entidad, id, n) : List<RegistroAuditoria>
+}
+class AuditoriaDAOImpl <<dao.impl>>
+
+class Auditoria <<util>> {
+  + {static} registrar(req, accion, entidad, id, descripcion, detalle) : void
+  + {static} registrarComo(req, idUsuario, username, ...) : void
+  + {static} construir(...) : RegistroAuditoria
+  + {static} diferencias(antes, despues) : String
+}
+class AuditoriaServlet <<controller>>
+
+interface DashboardDAO <<dao>> {
+  + totalesAdmin() : Map<String,Long>
+  + citasPorEstado(dias) : List<EtiquetaValor>
+  + movimientosPorDia(dias) : List<PuntoDiario>
+  + misCitasHoy(idFuncionario) : Map<String,Long>
+  + totalesAlmacen() : Map<String,Long>
+  + materialesParaReponer() : List<FilaStockCritico>
+  + salidasPorAreaMes() : List<EtiquetaValor>
+  + ultimosMovimientos(limite) : List<MovimientoStock>
+}
+class DashboardDAOImpl <<dao.impl>>
+
+class PanelDatos <<util>> {
+  + construir(rol, idUsuario) : Map<String,Object>
+}
+class DashboardServlet <<controller>>
+class DashboardDatosServlet <<controller>>
+class DashboardDesbloquearServlet <<controller>>
+class EtiquetaValor <<model>>
+class PuntoDiario <<model>>
+
+AuditoriaDAO <|.. AuditoriaDAOImpl
+DashboardDAO <|.. DashboardDAOImpl
+Auditoria --> AuditoriaDAO
+AuditoriaServlet --> AuditoriaDAO
+AuditoriaServlet ..> FiltrosAuditoria
+AuditoriaDAO ..> RegistroAuditoria
+PanelDatos --> DashboardDAO
+PanelDatos --> AuditoriaDAO
+DashboardDatosServlet --> PanelDatos
+DashboardServlet ..> Usuario : rol de la sesión
+DashboardDesbloquearServlet --> UsuarioDAO
+DashboardDAO ..> EtiquetaValor
+DashboardDAO ..> PuntoDiario
+class Usuario <<model>>
+interface UsuarioDAO <<dao>>
+@enduml

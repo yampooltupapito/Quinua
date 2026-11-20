@@ -1,0 +1,41 @@
+@startuml casos_de_uso_administrador
+title SIGMUD - Casos de uso del Administrador (ADMIN)
+left to right direction
+skinparam shadowing false
+
+actor "Administrador\n(ADMIN)" as ADM
+
+rectangle "SIGMUD" {
+  usecase "Iniciar / cerrar sesión" as A1
+  usecase "Ver panel del administrador" as A2
+  usecase "Desbloquear cuenta desde el panel" as A3
+  usecase "Gestionar usuarios\n(crear, editar, activar/desactivar)" as A4
+  usecase "Restablecer contraseña de otro usuario" as A5
+  usecase "Consultar auditoría (filtros)" as A6
+  usecase "Exportar auditoría a CSV" as A7
+  usecase "Gestionar contribuyentes" as A8
+  usecase "Consultar ficha (incluye pestaña Actividad)" as A9
+  usecase "Gestionar citas" as A10
+  usecase "Gestionar materiales y stock" as A11
+  usecase "Ver reportes (citas y almacén)" as A12
+  usecase "Cambiar mi contraseña" as A13
+}
+
+ADM --> A1
+ADM --> A2
+ADM --> A3
+ADM --> A4
+ADM --> A5
+ADM --> A6
+ADM --> A8
+ADM --> A9
+ADM --> A10
+ADM --> A11
+ADM --> A12
+ADM --> A13
+
+A6 ..> A7 : <<extend>>
+A2 ..> A3 : <<extend>>
+A4 ..> A5 : <<extend>>
+A9 ..> A8 : <<extend>>
+@enduml

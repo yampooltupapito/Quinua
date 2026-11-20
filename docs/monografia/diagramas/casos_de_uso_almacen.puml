@@ -1,0 +1,38 @@
+@startuml casos_de_uso_almacen
+title SIGMUD - Casos de uso del Encargado de almacén (ALMACEN)
+left to right direction
+skinparam shadowing false
+
+actor "Encargado de almacén\n(ALMACEN)" as ALM
+
+rectangle "SIGMUD" {
+  usecase "Iniciar / cerrar sesión" as L1
+  usecase "Ver panel del almacén" as L2
+  usecase "Registrar material" as L3
+  usecase "Editar material" as L4
+  usecase "Dar de baja material" as L5
+  usecase "Buscar / filtrar stock crítico" as L6
+  usecase "Registrar entrada de stock" as L7
+  usecase "Registrar salida de stock" as L8
+  usecase "Ver historial de movimientos" as L9
+  usecase "Reportes de almacén (CSV)" as L10
+  usecase "Cambiar mi contraseña" as L11
+  usecase "Confirmar transacción\n(commit / rollback)" as L12
+}
+
+ALM --> L1
+ALM --> L2
+ALM --> L3
+ALM --> L4
+ALM --> L5
+ALM --> L6
+ALM --> L7
+ALM --> L8
+ALM --> L9
+ALM --> L10
+ALM --> L11
+
+L7 ..> L12 : <<include>>
+L8 ..> L12 : <<include>>
+L2 ..> L7 : <<extend>>\n(Registrar entrada\ndesde "para reponer")
+@enduml

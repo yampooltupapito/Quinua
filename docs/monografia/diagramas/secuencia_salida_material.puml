@@ -1,0 +1,43 @@
+@startuml secuencia_salida_material
+title Secuencia: salida de material (JSP, jQuery/Ajax, Servlet, DAO y MySQL)
+skinparam shadowing false
+skinparam defaultFontSize 12
+autonumber
+
+actor "Encargado\nde almacén" as U
+participant "listado.jsp\n(JSP + Bootstrap)" as JSP
+participant "movimientos.js\n(jQuery $.ajax)" as JS
+participant "Filtros\n(Auth, CSRF)" as F
+participant "MovimientoServlet" as S
+participant "MovimientoDAOImpl" as D
+database "MySQL\n(mun_quinua)" as DB
+
+U -> JSP : Pulsa "Salida" en la fila
+JSP --> U : Muestra la ventana (modal)
+U -> JS : Envía cantidad, área y observación
+JS -> JS : Valida con jQuery\n(cantidad 1..100000, área)
+JS -> F : POST /almacen/movimiento\n+ cabecera X-CSRF-Token
+F -> F : Comprueba sesión, rol y token
+F -> S : doPost
+S -> S : validar(req)\nusuario = sesión
+S -> D : registrarMovimiento(idMaterial, "SALIDA",\ncantidad, idArea, idUsuario, obs, ip)
+D -> DB : setAutoCommit(false)
+D -> DB : SELECT stock ... FOR UPDATE
+DB --> D : stock actual
+alt stock suficiente
+  D -> DB : INSERT movimiento_stock
+  D -> DB : UPDATE material SET stock = stock - ?
+  D -> DB : INSERT auditoria (misma conexión)
+  D -> DB : commit()
+  D --> S : nuevo stock
+  S --> JS : {"ok":true,"mensaje":...,"stockActual":N,"critico":false}
+  JS -> JSP : Actualiza stock e insignia de la fila
+  JS --> U : Aviso verde (toast)
+else stock insuficiente o error
+  D -> DB : rollback()
+  D --> S : StockInsuficienteException / DaoException
+  S --> JS : {"ok":false,"mensaje":...}
+  JS --> U : Aviso rojo (toast)
+end
+D -> DB : setAutoCommit(true)
+@enduml

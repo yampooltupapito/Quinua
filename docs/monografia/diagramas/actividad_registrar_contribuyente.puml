@@ -1,0 +1,51 @@
+@startuml actividad_registrar_contribuyente
+title Registrar un contribuyente con validaciones
+skinparam shadowing false
+skinparam defaultFontSize 12
+
+start
+:Abrir "Nuevo contribuyente" (GET /contribuyentes?accion=nuevo);
+:Elegir tipo de persona y completar los datos;
+if (¿Validación jQuery correcta?) then (no)
+  :Mostrar campos en rojo;
+  stop
+else (sí)
+endif
+:POST /contribuyentes (accion=guardar, token CSRF);
+
+partition "ContribuyenteServlet" {
+  :Leer el formulario;
+  partition "ContribuyenteValidador" {
+    if (¿NATURAL: DNI de 8 dígitos?\n¿JURIDICA: RUC de 11 dígitos que\nempieza con 10 o 20?) then (no)
+      :Error de documento;
+    endif
+    if (¿Nombre de 3 a 150 caracteres?) then (no)
+      :Error de nombre;
+    endif
+    if (¿Teléfono 9 dígitos (empieza con 9),\ncorreo y dirección válidos si se escribieron?) then (no)
+      :Error de contacto;
+    endif
+    if (¿Fecha de nacimiento solo naturales,\nno futura, no anterior a 1900?) then (no)
+      :Error de fecha;
+    endif
+  }
+}
+
+if (¿Hay errores?) then (sí)
+  :Volver a mostrar el formulario\ncon los errores y los datos escritos;
+  stop
+else (no)
+endif
+
+:ContribuyenteDAO.insertar (PreparedStatement);
+if (¿Violación del UNIQUE de dni_ruc\n(error 1062)?) then (sí)
+  :RegistroDuplicadoException;
+  :Formulario con "Ya existe un contribuyente\ncon ese DNI/RUC";
+  stop
+else (no)
+endif
+:Registrar auditoría CREAR;
+:Guardar mensaje flash y REDIRIGIR\n(Post-Redirect-Get);
+:Mostrar el listado con\n"Contribuyente registrado correctamente.";
+stop
+@enduml

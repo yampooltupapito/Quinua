@@ -1,0 +1,110 @@
+@startuml er
+title SIGMUD - Modelo entidad-relación (base mun_quinua)
+skinparam shadowing false
+skinparam linetype ortho
+hide circle
+
+entity "area" as area {
+  * id_area : INT UNSIGNED <<PK>>
+  --
+  * nombre : VARCHAR(80) <<UK>>
+  * estado : TINYINT(1)
+}
+
+entity "usuario" as usuario {
+  * id_usuario : INT UNSIGNED <<PK>>
+  --
+  * username : VARCHAR(30) <<UK>>
+  * password_hash : VARCHAR(255)
+  * nombres : VARCHAR(100)
+  * rol : ENUM(ADMIN, ATENCION, ALMACEN)
+  id_area : INT UNSIGNED <<FK>>
+  * estado : TINYINT(1)
+  * intentos_fallidos : TINYINT UNSIGNED
+  ultimo_acceso : DATETIME
+  * debe_cambiar_password : TINYINT(1)
+}
+
+entity "contribuyente" as contribuyente {
+  * id_contribuyente : INT UNSIGNED <<PK>>
+  --
+  * tipo_persona : ENUM(NATURAL, JURIDICA)
+  * dni_ruc : VARCHAR(11) <<UK>>
+  * nombres_razon_social : VARCHAR(150)
+  fecha_nacimiento : DATE
+  telefono : VARCHAR(9)
+  email : VARCHAR(100)
+  direccion : VARCHAR(200)
+  * estado : TINYINT(1)
+  * fecha_registro : DATETIME
+}
+
+entity "material" as material {
+  * id_material : INT UNSIGNED <<PK>>
+  --
+  * codigo : VARCHAR(15) <<UK>>
+  * nombre : VARCHAR(100)
+  * unidad : VARCHAR(20)
+  * stock : INT
+  * stock_minimo : INT
+  * estado : TINYINT(1)
+}
+
+entity "movimiento_stock" as movimiento_stock {
+  * id_movimiento : INT UNSIGNED <<PK>>
+  --
+  * id_material : INT UNSIGNED <<FK>>
+  * tipo : ENUM(ENTRADA, SALIDA)
+  * cantidad : INT
+  * fecha : DATETIME
+  id_area : INT UNSIGNED <<FK>>
+  * id_usuario : INT UNSIGNED <<FK>>
+  observacion : VARCHAR(200)
+}
+
+entity "cita" as cita {
+  * id_cita : INT UNSIGNED <<PK>>
+  --
+  * id_contribuyente : INT UNSIGNED <<FK>>
+  * id_area : INT UNSIGNED <<FK>>
+  * id_funcionario : INT UNSIGNED <<FK>>
+  * ventanilla : TINYINT UNSIGNED
+  * fecha : DATE
+  * hora : TIME
+  motivo : VARCHAR(200)
+  * estado : ENUM(PROGRAMADA, ATENDIDA, CANCELADA)
+  hora_activa : TIME <<generada>>
+}
+
+entity "auditoria" as auditoria {
+  * id_auditoria : BIGINT <<PK>>
+  --
+  * fecha_hora : DATETIME(3)
+  id_usuario : INT UNSIGNED <<FK>>
+  * username : VARCHAR(40)
+  * accion : VARCHAR(30)
+  * entidad : VARCHAR(30)
+  id_entidad : INT
+  * descripcion : VARCHAR(255)
+  detalle : TEXT
+  * ip : VARCHAR(45)
+}
+
+area |o--o{ usuario : "pertenece a (opcional)"
+area |o--o{ movimiento_stock : "solicita (solo salidas)"
+area ||--o{ cita : "atiende en"
+usuario ||--o{ movimiento_stock : "registra"
+usuario ||--o{ cita : "atiende (funcionario)"
+usuario |o--o{ auditoria : "realiza"
+material ||--o{ movimiento_stock : "tiene"
+contribuyente ||--o{ cita : "solicita"
+
+note bottom of auditoria
+  Triggers trg_auditoria_no_update y
+  trg_auditoria_no_delete: tabla inmutable.
+end note
+note bottom of cita
+  UNIQUE (id_funcionario, fecha, hora_activa).
+  hora_activa = NULL si estado = CANCELADA.
+end note
+@enduml

@@ -1,0 +1,62 @@
+@startuml actividad_salida_material
+title Registrar una salida de material (transacción con rollback)
+skinparam shadowing false
+skinparam defaultFontSize 12
+
+|Navegador|
+start
+:Pulsar "Salida" en la fila del material;
+:Escribir cantidad, área y observación;
+if (¿Validación jQuery correcta?\n(cantidad 1..100000, área elegida)) then (no)
+  :Mostrar campos en rojo;
+  stop
+else (sí)
+endif
+:$.ajax POST /almacen/movimiento\n(con cabecera X-CSRF-Token);
+
+|Servidor (Servlet)|
+:AuthFilter: sesión y rol (ADMIN o ALMACEN);
+:CsrfFilter: token válido;
+if (¿Datos válidos en el servidor?) then (no)
+  :Responder JSON {"ok":false,"mensaje":...};
+  |Navegador|
+  :Mostrar aviso de error (toast);
+  stop
+else (sí)
+endif
+:Tomar el usuario de la SESIÓN;
+
+|Base de datos (DAO)|
+:setAutoCommit(false);
+:SELECT stock ... FOR UPDATE\n(bloquea la fila del material);
+if (¿Material existe y activo?) then (no)
+  :MaterialNoDisponibleException;
+  #pink:rollback();
+else (sí)
+  if (¿Es salida y stock < cantidad?) then (sí)
+    :StockInsuficienteException;
+    #pink:rollback();
+  else (no)
+    :INSERT en movimiento_stock;
+    :UPDATE material SET stock = stock - cantidad;
+    :INSERT en auditoria (misma conexión);
+    if (¿Algún paso falló?) then (sí)
+      #pink:rollback();
+    else (no)
+      #palegreen:commit();
+    endif
+  endif
+endif
+:setAutoCommit(true) (finally);
+
+|Servidor (Servlet)|
+if (¿Se confirmó?) then (sí)
+  :JSON {"ok":true, stockActual, critico};
+else (no)
+  :JSON {"ok":false,"mensaje":...}\n(o 500 con mensaje genérico si fue error de base);
+endif
+
+|Navegador|
+:Actualizar stock e insignia en la fila\ny mostrar el aviso;
+stop
+@enduml

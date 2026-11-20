@@ -1,0 +1,181 @@
+/* ==========================================================================
+   SIGMUD - estilos propios.
+   Todos los colores propios son VARIABLES CSS con un valor para el tema claro (:root) y otro para el oscuro
+   ([data-bs-theme="dark"], que activa tema.js). Los contrastes de texto cumplen WCAG AA (mínimo 4.5:1):
+     claro:  verde #1b5e20 sobre #f6f9f6 = 7.9:1   |  blanco sobre #1b5e20 = 8.2:1
+     oscuro: verde #81c784 sobre #141916 = 8.9:1   |  blanco sobre #2e7d32 = 5.1:1
+   ========================================================================== */
+
+:root {
+    --sigmud-verde: #1b5e20;
+    --sigmud-verde-oscuro: #124116;
+    --sigmud-verde-claro: #e8f5e9;
+    --sigmud-dorado: #c9a227;
+    --sigmud-marca: #1b5e20;            /* texto de marca (títulos .text-sigmud) y enlaces */
+    --sigmud-marca-hover: #124116;
+    --sigmud-boton: #1b5e20;            /* fondo de .btn-sigmud */
+    --sigmud-boton-hover: #124116;
+    --sigmud-barra: #1b5e20;            /* barra de navegación */
+    --sigmud-fondo: #f6f9f6;            /* fondo de la página */
+    --sigmud-fondo-tarjeta: #ffffff;
+    --sigmud-fondo-cabecera: #f1f4f1;   /* cabeceras de tabla */
+    --sigmud-borde: #dfe5df;
+    --sigmud-etiqueta: #5b665b;         /* etiquetas pequeñas (KPI) */
+    --sigmud-alerta-fondo: #fdecea;
+    --sigmud-alerta-texto: #b71c1c;
+    --sigmud-foco: #0b57d0;             /* contorno del foco del teclado */
+    --bs-primary: var(--sigmud-boton);
+    --bs-primary-rgb: 27, 94, 32;
+    --bs-link-color: var(--sigmud-marca);
+    --bs-link-color-rgb: 27, 94, 32;
+    --bs-link-hover-color: var(--sigmud-marca-hover);
+    --bs-link-hover-color-rgb: 18, 65, 22;
+}
+
+[data-bs-theme="dark"] {
+    --sigmud-marca: #81c784;
+    --sigmud-marca-hover: #a5d6a7;
+    --sigmud-boton: #2e7d32;
+    --sigmud-boton-hover: #1b5e20;
+    --sigmud-barra: #12351a;
+    --sigmud-fondo: #141916;
+    --sigmud-fondo-tarjeta: #1b221e;
+    --sigmud-fondo-cabecera: #232c26;
+    --sigmud-borde: #34403a;
+    --sigmud-etiqueta: #b4beb8;
+    --sigmud-alerta-fondo: #3b1f1f;
+    --sigmud-alerta-texto: #ff8a80;
+    --sigmud-foco: #ffd54f;
+    --bs-body-bg: var(--sigmud-fondo);
+    --bs-body-bg-rgb: 20, 25, 22;
+    --bs-tertiary-bg: #1d2420;
+    --bs-border-color: var(--sigmud-borde);
+    --bs-primary: #2e7d32;
+    --bs-primary-rgb: 46, 125, 50;
+    --bs-link-color: #81c784;
+    --bs-link-color-rgb: 129, 199, 132;
+    --bs-link-hover-color: #a5d6a7;
+    --bs-link-hover-color-rgb: 165, 214, 167;
+}
+
+body { background-color: var(--sigmud-fondo); }
+
+.navbar-sigmud { background-color: var(--sigmud-barra); }
+.navbar-sigmud .navbar-brand,
+.navbar-sigmud .nav-link { color: #fff; }
+
+.text-sigmud { color: var(--sigmud-marca); }
+
+.btn-sigmud {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--sigmud-boton);
+    --bs-btn-border-color: var(--sigmud-boton);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--sigmud-boton-hover);
+    --bs-btn-hover-border-color: var(--sigmud-boton-hover);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--sigmud-boton-hover);
+    --bs-btn-active-border-color: var(--sigmud-boton-hover);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: var(--sigmud-boton);
+    --bs-btn-disabled-border-color: var(--sigmud-boton);
+}
+
+.card-sigmud { border-top: 4px solid var(--sigmud-boton); }
+[data-bs-theme="dark"] .card { --bs-card-bg: var(--sigmud-fondo-tarjeta); --bs-card-cap-bg: var(--sigmud-fondo-cabecera); }
+[data-bs-theme="dark"] .modal-content { background-color: var(--sigmud-fondo-tarjeta); }
+
+/* Cabeceras de tabla: el "table-light" de Bootstrap es claro fijo; en oscuro usa los colores del tema */
+.table-light { --bs-table-bg: var(--sigmud-fondo-cabecera); --bs-table-color: var(--bs-body-color); --bs-table-border-color: var(--sigmud-borde); }
+[data-bs-theme="dark"] .table-light { --bs-table-bg: var(--sigmud-fondo-cabecera); --bs-table-color: #e3ebe5; --bs-table-border-color: var(--sigmud-borde); }
+[data-bs-theme="dark"] .table { --bs-table-bg: var(--sigmud-fondo-tarjeta); --bs-table-hover-bg: #232c26; --bs-table-border-color: var(--sigmud-borde); }
+
+/* Botones con borde: en oscuro se aclaran para mantener el contraste AA sobre el fondo oscuro */
+[data-bs-theme="dark"] .btn-outline-dark { --bs-btn-color: #dee2e6; --bs-btn-border-color: #adb5bd; --bs-btn-hover-color: #212529; --bs-btn-hover-bg: #dee2e6; --bs-btn-hover-border-color: #dee2e6; --bs-btn-active-color: #212529; --bs-btn-active-bg: #dee2e6; }
+[data-bs-theme="dark"] .btn-outline-danger { --bs-btn-color: #ff8a80; --bs-btn-border-color: #ff8a80; --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #c62828; --bs-btn-hover-border-color: #c62828; --bs-btn-active-bg: #c62828; --bs-btn-active-color: #fff; }
+[data-bs-theme="dark"] .btn-outline-success { --bs-btn-color: #81c784; --bs-btn-border-color: #81c784; --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #2e7d32; --bs-btn-hover-border-color: #2e7d32; --bs-btn-active-bg: #2e7d32; --bs-btn-active-color: #fff; }
+[data-bs-theme="dark"] .btn-outline-primary { --bs-btn-color: #81c784; --bs-btn-border-color: #81c784; --bs-btn-hover-color: #fff; --bs-btn-hover-bg: #2e7d32; --bs-btn-hover-border-color: #2e7d32; --bs-btn-active-bg: #2e7d32; --bs-btn-active-color: #fff; }
+[data-bs-theme="dark"] .btn-outline-secondary { --bs-btn-color: #c4ccc7; --bs-btn-border-color: #8d9892; --bs-btn-hover-color: #121614; --bs-btn-hover-bg: #c4ccc7; --bs-btn-hover-border-color: #c4ccc7; --bs-btn-active-bg: #c4ccc7; --bs-btn-active-color: #121614; }
+[data-bs-theme="dark"] .btn-success { --bs-btn-bg: #2e7d32; --bs-btn-border-color: #2e7d32; --bs-btn-hover-bg: #1b5e20; --bs-btn-hover-border-color: #1b5e20; }
+[data-bs-theme="dark"] .btn-danger { --bs-btn-bg: #c62828; --bs-btn-border-color: #c62828; --bs-btn-hover-bg: #b71c1c; --bs-btn-hover-border-color: #b71c1c; }
+
+/* Insignias con fondos que cumplen AA con texto blanco en ambos temas */
+.badge.text-bg-success { background-color: #1b6e2f !important; }
+.badge.text-bg-danger { background-color: #c62828 !important; }
+.badge.text-bg-secondary { background-color: #5c636a !important; }
+.badge.text-bg-primary { background-color: var(--sigmud-boton) !important; }
+
+/* ---------- Paneles (dashboards) ---------- */
+.kpi-card { border-left: 4px solid var(--sigmud-boton); }
+.kpi-icono { font-size: 1.9rem; color: var(--sigmud-marca); }
+.kpi-numero { font-size: 1.9rem; font-weight: 700; line-height: 1.1; }
+.kpi-etiqueta { font-size: .8rem; color: var(--sigmud-etiqueta); }
+/* Indicadores de alerta (stock crítico, cuentas bloqueadas): rojo cuando el valor es mayor que 0 */
+.kpi-card.kpi-alerta { border-left-color: var(--sigmud-alerta-texto); background-color: var(--sigmud-alerta-fondo); }
+.kpi-card.kpi-alerta .kpi-icono, .kpi-card.kpi-alerta .kpi-numero { color: var(--sigmud-alerta-texto); }
+/* Contenedor de cada gráfico: altura fija para que Chart.js se ajuste al ancho disponible */
+.grafico { position: relative; height: 260px; }
+
+/* ---------- Logo e identidad ---------- */
+.logo-barra { max-height: 30px; width: auto; }
+.logo-login { max-width: 180px; max-height: 120px; width: auto; height: auto; }
+.icono-login { font-size: 3.2rem; line-height: 1; }
+.logo-impresion { max-height: 48px; width: auto; }
+
+/* ---------- Tablas: encabezados ordenables y filas con detalle ---------- */
+.th-orden { white-space: nowrap; }
+.th-orden:hover { text-decoration: underline !important; }
+.fila-auditoria { cursor: pointer; }
+
+/* ---------- Avisos (toasts) ---------- */
+.toast-container { z-index: 1100; max-width: 100%; }
+.toast { min-width: 280px; }
+
+/* ---------- Accesibilidad ---------- */
+/* Foco visible en todos los controles (teclado) */
+:focus-visible { outline: 3px solid var(--sigmud-foco); outline-offset: 2px; }
+.form-control:focus-visible, .form-select:focus-visible, .form-check-input:focus-visible,
+.btn:focus-visible, .page-link:focus-visible, .nav-link:focus-visible, .btn-close:focus-visible {
+    outline: 3px solid var(--sigmud-foco);
+    outline-offset: 2px;
+}
+.navbar-sigmud :focus-visible { outline-color: #fff; }
+/* El <main> recibe el foco solo por el enlace "Saltar al contenido": sin contorno */
+main[tabindex="-1"]:focus, #contenido:focus { outline: none; }
+/* Enlace "Saltar al contenido": invisible hasta que recibe el foco */
+.saltar-contenido {
+    position: absolute; left: -9999px; top: 0; z-index: 2000;
+    padding: .6rem 1rem; background: #fff; color: #124116; font-weight: 600;
+    border-radius: 0 0 .5rem 0; text-decoration: none;
+}
+.saltar-contenido:focus { left: .5rem; top: .5rem; outline: 3px solid #0b57d0; }
+
+/* ---------- Paginación con los colores institucionales (en vez del azul de Bootstrap) ---------- */
+.pagination {
+    --bs-pagination-color: var(--sigmud-marca);
+    --bs-pagination-hover-color: var(--sigmud-marca-hover);
+    --bs-pagination-active-bg: var(--sigmud-boton);
+    --bs-pagination-active-border-color: var(--sigmud-boton);
+    --bs-pagination-active-color: #fff;
+    --bs-pagination-focus-color: var(--sigmud-marca-hover);
+}
+[data-bs-theme="dark"] .pagination {
+    --bs-pagination-bg: var(--sigmud-fondo-tarjeta);
+    --bs-pagination-border-color: var(--sigmud-borde);
+    --bs-pagination-hover-bg: #232c26;
+    --bs-pagination-disabled-bg: var(--sigmud-fondo-tarjeta);
+    --bs-pagination-disabled-color: #8d9892;
+}
+
+/* Botón con borde "primario" en verde institucional (el de Bootstrap es azul) */
+.btn-outline-primary {
+    --bs-btn-color: var(--sigmud-marca);
+    --bs-btn-border-color: var(--sigmud-marca);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--sigmud-boton);
+    --bs-btn-hover-border-color: var(--sigmud-boton);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--sigmud-boton-hover);
+    --bs-btn-active-border-color: var(--sigmud-boton-hover);
+    --bs-btn-focus-shadow-rgb: 27, 94, 32;
+}

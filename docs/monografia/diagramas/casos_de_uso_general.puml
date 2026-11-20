@@ -1,0 +1,78 @@
+@startuml casos_de_uso_general
+title SIGMUD - Casos de uso generales
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+actor "Administrador\n(ADMIN)" as ADM
+actor "Funcionario de atención\n(ATENCION)" as ATE
+actor "Encargado de almacén\n(ALMACEN)" as ALM
+
+rectangle "SIGMUD" {
+  package "Acceso" {
+    usecase "Iniciar sesión" as UC01
+    usecase "Cerrar sesión" as UC02
+    usecase "Cambiar mi contraseña" as UC03
+  }
+  package "Contribuyentes" {
+    usecase "Registrar / editar contribuyente" as UC04
+    usecase "Dar de baja / reactivar" as UC05
+    usecase "Consultar ficha" as UC06
+  }
+  package "Citas" {
+    usecase "Programar / reprogramar cita" as UC07
+    usecase "Atender / cancelar cita" as UC08
+    usecase "Reporte de citas" as UC09
+  }
+  package "Almacén" {
+    usecase "Gestionar materiales" as UC10
+    usecase "Registrar entrada / salida de stock" as UC11
+    usecase "Reportes de almacén" as UC12
+  }
+  package "Administración" {
+    usecase "Gestionar usuarios" as UC13
+    usecase "Restablecer clave / desbloquear" as UC14
+    usecase "Consultar auditoría" as UC15
+  }
+  usecase "Ver mi panel (dashboard)" as UC16
+}
+
+ADM --> UC01
+ADM --> UC02
+ADM --> UC03
+ADM --> UC04
+ADM --> UC05
+ADM --> UC06
+ADM --> UC07
+ADM --> UC08
+ADM --> UC09
+ADM --> UC10
+ADM --> UC11
+ADM --> UC12
+ADM --> UC13
+ADM --> UC14
+ADM --> UC15
+ADM --> UC16
+
+ATE --> UC01
+ATE --> UC02
+ATE --> UC03
+ATE --> UC04
+ATE --> UC05
+ATE --> UC06
+ATE --> UC07
+ATE --> UC08
+ATE --> UC09
+ATE --> UC16
+
+ALM --> UC01
+ALM --> UC02
+ALM --> UC03
+ALM --> UC10
+ALM --> UC11
+ALM --> UC12
+ALM --> UC16
+
+UC13 ..> UC14 : <<include>>
+UC06 ..> UC07 : <<extend>>\n(Nueva cita desde la ficha)
+@enduml
